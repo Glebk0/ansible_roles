@@ -1,0 +1,11 @@
+---
+# tasks file for java
+- name: Installing java
+  yum: "name={{ item }} state=present"
+  with_items: "{{ java_packages }}"
+
+- name: Get Java Version
+  shell: java -version |& awk -F '"' '/version/ {print $2}'
+  register: java_version
+
+- debug: msg="{{ java_version.stdout_lines }}"

@@ -1,0 +1,29 @@
+---
+# tasks file for httpd
+
+- name: ensuring httpd exists and latest version
+  remote_user: devops
+  yum:
+    name: httpd
+    state: latest
+
+- name: configuring httpd
+  vars:
+    jenkins_host: http://app_server:8080/
+  template:
+    src: templates/jenkins_conf.j2
+    dest: /etc/httpd/conf.d/jenkins.conf
+
+- name: enabling httpd service
+  systemd:
+    name: httpd
+    state: started
+    enabled: yes
+
+- name: checking installation results
+  shell: |
+    httpd -version
+    systemctl is-active httpd
+  register: httpd_status
+
+-debug: msg="{{ httpd_status.stdout_lines }}"

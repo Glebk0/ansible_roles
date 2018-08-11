@@ -1,0 +1,5 @@
+---
+# defaults file for httpd
+httpd_listen_ip: *
+httpd_listen_port: 80
+proxy_url: http://{{ appserver_hostname }}:8080
