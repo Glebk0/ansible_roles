@@ -3,6 +3,7 @@
 - name: Installing java
   yum: "name={{ item }} state=present"
   with_items: "{{ java_packages }}"
+  become: yes
 
 - name: Get Java Version
   shell: java -version |& awk -F '"' '/version/ {print $2}'

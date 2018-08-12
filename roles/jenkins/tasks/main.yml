@@ -36,16 +36,23 @@
   become: yes
   notify: Reload service
 
-- name: Checking jenkins
-  shell: |
-    systemctl is-active jenkins
-  register: jenkins_status
-- debug: msg="{{ jenkins_status.stdout_lines}}"
+- name: Starting jenkins service
+  systemd:
+    name: jenkins
+    state: started
+    enabled: yes
+  become: yes
 
 - name: Waiting for jenkins to boot
   wait_for:
     port: 8080
     delay: 5
+
+- name: Checking jenkins
+  shell: |
+    systemctl is-active jenkins
+  register: jenkins_status
+- debug: msg="{{ jenkins_status.stdout_lines}}"
 
 - name: Getting jenkins init password
   shell: cat {{ jenkins_home }}secrets/initialAdminPassword
