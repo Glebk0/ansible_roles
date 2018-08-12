@@ -1,2 +1,56 @@
 ---
 # tasks file for jenkins
+- name: Creating jenkins user group
+  group:
+    name: "{{ jenkins_group }}"
+  become: yes
+
+- name: Creating user for jenkins service
+  user:
+    name: "{{ jenkins_user }}"
+    group: "{{ jenkins_group }}"
+  become: yes
+
+
+- name: Creating jenkins home directory
+  file:
+    path: "{{ jenkins_home }}"
+    state: directory
+    owner: jenkins
+    group: jenkins
+  become: yes
+
+- name: Download jenkins
+  get_url:
+    url: "{{ jenkins_war_url }}{{ jenkins_version }}/jenkins.war"
+    dest: "{{ jenkins_home }}jenkins.war"
+  become: yes
+
+- name: Creating jenkins service
+  template:
+    src: jenkins.service.j2
+    dest: /etc/systemd/system/jenkins.service
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  notify: Reload service
+
+- name: Checking jenkins
+  shell: |
+    systemctl is-active jenkins
+  register: jenkins_status
+- debug: msg="{{ jenkins_status.stdout_lines}}"
+
+- name: Waiting for jenkins to boot
+  wait_for:
+    port: 8080
+    delay: 5
+
+- name: Getting jenkins init password
+  shell: cat {{ jenkins_home }}secrets/initialAdminPassword
+  changed_when: false
+  become: yes
+  register: password
+- debug: msg="Initial jenkins password {{password.stdout}}"
+

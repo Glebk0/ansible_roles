@@ -6,19 +6,22 @@
   yum:
     name: httpd
     state: latest
+  become: yes
 
 - name: configuring httpd
-  vars:
-    jenkins_host: http://app_server:8080/
   template:
-    src: templates/jenkins_conf.j2
+    src: templates/vhost.conf.j2
     dest: /etc/httpd/conf.d/jenkins.conf
+  become: yes
+  notify:
+    - restart httpd
 
 - name: enabling httpd service
   systemd:
     name: httpd
     state: started
     enabled: yes
+  become: yes
 
 - name: checking installation results
   shell: |
@@ -26,4 +29,4 @@
     systemctl is-active httpd
   register: httpd_status
 
--debug: msg="{{ httpd_status.stdout_lines }}"
+- debug: msg="{{ httpd_status.stdout_lines }}"

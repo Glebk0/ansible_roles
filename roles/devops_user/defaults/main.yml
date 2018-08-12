@@ -1,2 +1,5 @@
 ---
 # defaults file for devops_user
+user: devops
+group: devops
+key_path: /home/vagrant/

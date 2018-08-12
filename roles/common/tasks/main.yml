@@ -1,19 +1,22 @@
 ---
-# tasks file for common
+
+- name: configuring hosts files
+  template:
+    src: hosts.j2
+    dest: /etc/hosts
+
 - name: yum update
   yum:
     name: "*"
     state: latest
     update_cache: yes
 
-# Подключаем EPEL repository:
 - name: install EPEL repository
   yum:
     name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
     state: present
     update_cache: yes
 
-# Устанавливаем стандартные утилиты. Список пакетов задан в переменной tools_packages:
 - name: install tools
   yum:
     name: '{{ item.name }}'

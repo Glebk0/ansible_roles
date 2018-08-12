@@ -190,3 +190,4 @@ pip-selfcheck.json
 # Log files (if you are creating logs in debug mode, uncomment this)
 # *.logs
 .idea
+/devops.pem

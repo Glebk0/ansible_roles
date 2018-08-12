@@ -1,2 +1,23 @@
 ---
-# tasks file for devops_user
+- name: Create group
+  group:
+    name: "{{ group }}"
+    state: present
+- name: Create user
+  user:
+    name: "{{ user }}"
+    group: "{{ group }}"
+    state: present
+- name: Set authorized key took from file for {{ user }}
+  authorized_key:
+    user: "{{ user }}"
+    state: present
+    key: "{{ lookup('file', '{{ key_path }}{{ user }}.pub') }}"
+
+- name: Addiing {{ user }} in sudoers with disabled requiretty
+  template:
+    src: sudoers.j2
+    dest: /etc/sudoers.d/{{ user }}
+    validate: 'visudo -cf %s'
+    mode: 0440
+

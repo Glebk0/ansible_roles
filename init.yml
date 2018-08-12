@@ -1,0 +1,44 @@
+- hosts: localhost
+  become: yes
+
+  tasks:
+    - name: Getting vars from devops_user
+      include_vars: /vagrant/roles/devops_user/defaults/main.yml
+    - name: Generating ssh key
+
+      shell: ssh-keygen -b 2048 -t rsa -f {{ key_path }}{{ user }} -q -N ""
+      args:
+        creates: "{{ key_path }}{{ user }}"
+    - name: Converting rsa ssh key to pem ssh key
+      shell: |
+            openssl rsa -in devops -outform pem > devops.pem
+            sudo chmod 600 devops.pem
+
+- name: Creating a ssh key for user on local host
+  hosts: all
+  roles:
+    - role: common
+      become: yes
+      become_user: root
+
+- name: Creating a user on remote hosts
+  hosts:
+    - webservers
+    - appservers
+  roles:
+    - role: devops_user
+      become: yes
+      become_user: root
+
+- name: Installing httpd on web server
+  hosts:
+    - webservers
+  roles:
+    - role: httpd
+
+- name: Installing java and jenkins on app server
+  hosts:
+    - appservers
+  roles:
+    - role: java
+    - role: jenkins

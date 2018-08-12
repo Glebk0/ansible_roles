@@ -1,2 +1,9 @@
 ---
 # defaults file for jenkins
+
+jenkins_version: latest
+jenkins_war_url: http://mirrors.jenkins.io/war/
+jenkins_group: jenkins
+jenkins_user: jenkins
+jenkins_home: /opt/jenkins/
+JAVA_OPTS: "-Djava.awt.headless=true -DJENKINS_HOME={{ jenkins_home }}"
