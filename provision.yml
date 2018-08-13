@@ -1,0 +1,40 @@
+- name: gather facts
+  hosts: all
+
+- hosts: localhost
+  become: yes
+  vars:
+    user: devops
+    key_path: /home/student/ansible/day2/
+  pre_tasks:
+  - name: Generating ssh key
+    shell: ssh-keygen -b 2048 -t rsa -f {{ key_path }}{{ user }} -q -N ""
+    args:
+      creates: "{{ key_path }}{{ user }}"
+
+  - name: Converting rsa ssh key to pem ssh key
+    shell: |
+      openssl rsa -in {{ user }} -outform pem > {{ user }}.pem
+
+- hosts: webservers:appservers
+  pre_tasks:
+
+  roles:
+  - common
+
+- hosts: webservers
+  vars:
+    httpd_listen_port: 9090
+  tasks:
+  roles:
+  - httpd
+
+- hosts: appservers
+  vars:
+    jenkins_home: /opt/jenkins_home/
+    jenkins_user: jenkins_service
+    jenkins_version: latest
+  tasks:
+  roles:
+  - java
+  - jenkins

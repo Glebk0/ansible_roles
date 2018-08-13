@@ -16,8 +16,8 @@
   file:
     path: "{{ jenkins_home }}"
     state: directory
-    owner: jenkins
-    group: jenkins
+    owner: "{{ jenkins_user }}"
+    group: "{{ jenkins_group }}"
   become: yes
 
 - name: Download jenkins
@@ -46,18 +46,42 @@
 - name: Waiting for jenkins to boot
   wait_for:
     port: 8080
-    delay: 5
+    delay: 50
 
 - name: Checking jenkins
   shell: |
     systemctl is-active jenkins
   register: jenkins_status
+  changed_when: no
 - debug: msg="{{ jenkins_status.stdout_lines}}"
 
 - name: Getting jenkins init password
   shell: cat {{ jenkins_home }}secrets/initialAdminPassword
-  changed_when: false
+  changed_when: no
   become: yes
-  register: password
-- debug: msg="Initial jenkins password {{password.stdout}}"
+  register: init_password
+- debug: msg="Initial jenkins password {{init_password.stdout}}"
 
+- name: Creating fact folder
+  become: yes
+  file:
+    path: /etc/ansible/facts.d
+    state: directory
+
+- name: Saving password fact
+  become: yes
+  copy:
+    content:
+      {
+        "initial_password": "{{ init_password.stdout }}"
+      }
+    dest: /etc/ansible/facts.d/jenkins_password.fact
+
+- name: Saving jenkins status fact
+  become: yes
+  copy:
+    content:
+      {
+        "status": "{{ jenkins_status.stdout_lines }}"
+      }
+    dest: /etc/ansible/facts.d/jenkins_status.fact

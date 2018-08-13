@@ -8,5 +8,5 @@
 - name: Get Java Version
   shell: java -version |& awk -F '"' '/version/ {print $2}'
   register: java_version
-
+  changed_when: no
 - debug: msg="{{ java_version.stdout_lines }}"

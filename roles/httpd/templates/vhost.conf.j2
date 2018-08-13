@@ -1,3 +1,4 @@
+listen {{ httpd_listen_port }}
 <VirtualHost {{ httpd_listen_ip }}:{{ httpd_listen_port }}>
     ProxyPass         /  {{ proxy_url }} nocanon
     ProxyPassReverse  /  {{ proxy_url }}

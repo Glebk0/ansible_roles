@@ -1,0 +1,5 @@
+tools_packages:
+  - name: vim
+  - name: curl
+  - name: wget
+  - name: net-tools

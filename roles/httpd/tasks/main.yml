@@ -28,5 +28,24 @@
     httpd -version
     systemctl is-active httpd
   register: httpd_status
+  changed_when: no
 
-- debug: msg="{{ httpd_status.stdout_lines }}"
+- name: Creating fact folder
+  become: yes
+  file:
+    path: /etc/ansible/facts.d
+    state: directory
+
+- name: Get version
+  shell: /usr/sbin/httpd -v 2>&1|grep "Server version"|awk '{print $3}'
+  register: httpd_version
+  changed_when: no
+
+- name: Saving facts
+  become: yes
+  copy:
+    content:
+      {
+        "version": "{{ httpd_version.stdout }}"
+      }
+    dest: /etc/ansible/facts.d/httpd.fact
